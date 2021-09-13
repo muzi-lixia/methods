@@ -399,3 +399,146 @@ function getFormData(object) {
 <input type="number" v-model="num" oninput="value = value.match(/^\d+(?:\.\d{0, 2})?/)">
 ```
 
+### 19.逆转数字
+
+```javascript
+// Math.sign(n)   返回数字 n 是正数、负数、0
+const reverseNumber = num => parseFloat(`${num}`.split('').reverse().join('')) * Math.sign(n);
+reverseNumber(123); // 321
+reverseNumber(-200); // -2
+reverseNumber(32.4); // 4.23
+reverseNumber(-32.4); // -4.23
+```
+
+### 20.获取数组中最大的N个数
+
+```javascript
+const maxFromArray = (array, number = 1) => [...array].sort((x, y) => y - x).slice(0, number);
+maxFromArray([2, 1, 4, 3, 5, 6]); // [6]
+maxFromArray([2, 1, 4, 3, 6, 6], 2); // [6, 6]
+```
+
+### 21.计算阶乘
+
+```javascript
+const factorial = number => number < 0 ? (() => throw new TypeError('类型错误'))() : number <= 1 ? 1 : number * factorial(number - 1);
+factorial(4); // 24
+factorial(10); // 3628800
+```
+
+### 22.判断当前环境是否为浏览器
+
+```javascript
+const isBrowser = () => ![typeof window, typeof document].includes('undefined');
+
+isBrowser(); // false (Node)
+isBrowser(); // true (browser)
+```
+
+### 23.判断当前环境是否为Node.js
+
+```javascript
+const isNode = () => typeof process !== 'undefined' && !!process.versions && !!process.versions.node;
+isNode(); // true (Node)
+isNode(); // false (browser)
+```
+
+### 24.rgb(0, 0, 0)颜色表达式格式转换为对象格式
+
+```javascript
+const toRGBObject = rgbStr => {
+    const [red, green, blue] = rgbStr.match(/\d+/g).map(Number);
+    return {red, green, blue}
+}
+toRGBObject('rgb(100, 150, 200)'); // {red: 100, green: 150, blue: 200}
+```
+
+### 25.转义字符串在HTML中使用
+
+```javascript
+const escapeHTML = str =>
+  str.replace(
+    /[&<>'"]/g,
+    tag =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag] || tag)
+  );
+escapeHTML('<a href="#">tntweb</a>'); 
+```
+
+### 26.Unescapes转义HTML字符
+
+```javascript
+const unescapeHTML = str =>
+  str.replace(
+    /&amp;|&lt;|&gt;|&#39;|&quot;/g,
+    tag =>
+      ({
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&#39;': "'",
+        '&quot;': '"'
+      }[tag] || tag)
+  );
+unescapeHTML('&lt;a href=&quot;#&quot;&gt;tntweb&lt;/a&gt;');
+```
+
+### 27.生成指定范围的随机整数
+
+```javascript
+const randomIntegerInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+randomIntegerInRange(1, 7); // 1 - 7
+```
+
+### 28.将波浪号路径转换为绝对路径
+
+```javascript
+const reversePath = str => str.replace(/^~($|\/|\\)/, `${require('os').homedir()}$1`);
+reversePath('~/web'); // '/Users/[userName]/web'
+```
+
+### 29.获取不带任何参数或片段标识符的URL
+
+```javascript
+const getBaseURL = url => url.replace(/[?#].*$/, '');
+getBaseURL('https://xx.com/index?name=tntweb&company=tencent');
+// https://xx.com/index
+```
+
+### 30.以字节为单位返回字符串的长度
+
+```javascript
+const byteSize = str => new Blob([str]).size;
+byteSize('🚗'); // 4
+byteSize('Hello World'); // 11
+```
+
+### 31.随机获取数组中的元素
+
+```javascript
+const randomly = arr => arr[Math.floor(Math.random() * arr.length)];
+randomly([1, 3, 5, 7, 9, 11]);
+```
+
+### 32.检查字符串是否为有效的JSON
+
+```javascript
+const isValidJSON = str => {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+isValidJSON('{"name":"tntweb","age":20}'); // true
+isValidJSON('{"name":"tntweb",age:"20"}'); // false
+isValidJSON(null); // true
+```
+
