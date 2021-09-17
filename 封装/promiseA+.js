@@ -5,17 +5,24 @@ const REJECTED = 'rejected';
 class Promise {
     constructor(executor) {
         this.status = PENDING;
-        this.value = value;
-        this.error = error;
+        this.value = undefined;
+        this.error = undefined;
         this.onResolvedCallbacks = [];
         this.onRejectedCallbacks = [];
-        
+
         let resolve = (value) => {
             if (this.status === PENDING) {
                 this.status = FULFILLED;
                 this.value = value;
                 this.onResolvedCallbacks.forEach(fn => fn());
             }
+            /* resolvePromise(this, value, (value) => {
+                if (this.status === PENDING) {
+                    this.status = FULFILLED
+                    this.value = value
+                    this.onResolvedCallbacks.forEach(fn => fn());
+                }
+            }, reject) */
         }
 
         let reject = (error) => {
@@ -33,11 +40,11 @@ class Promise {
         }
     }
 
-    then (onFulfilled, onRejected) {
-         // 解决 onFulfilled，onRejected 没有传值的问题
+    then(onFulfilled, onRejected) {
+        // 解决 onFulfilled，onRejected 没有传值的问题
         onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : (v) => v;
         // 因为错误的值要让后面访问到，所以这里也要抛出错误，不然会在之后 then 的 resolve 中捕获
-        onRejected = typeof onRejected === 'function' ? onRejected : (err) => {throw err};
+        onRejected = typeof onRejected === 'function' ? onRejected : (err) => { throw err };
 
         // 每次调用then都返回一个新的promise
         let promise2 = new Promise((resolve, reject) => {
@@ -50,7 +57,7 @@ class Promise {
                     } catch (e) {
                         reject(e)
                     }
-                    
+
                 }, 0)
             }
 
@@ -86,41 +93,42 @@ class Promise {
                     }, 0)
                 })
             }
-        })
+        });
+        return promise2;
     }
 
-    catch (onRejected) {
+    catch(onRejected) {
         return this.then(null, onRejected);
     }
 }
 
 const resolvePromise = (promise2, x, resolve, reject) => {
-    // 自己等待自己完成是错误的实现，用一个类型错误，结束掉 promise  Promise/A+ 2.3.1
+    // 自己等待自己完成是错误的实现(循环引用)，用一个类型错误，结束掉 promise
     if (promise2 === x) return reject(new TypeError("Chaining cycle detected for promise #<Promise>"));
 
-    // Promise/A+ 2.3.3.3.3 只能调用一次
+    // Promise/A+ 2.3.3.3.3 只能调用一次（防止多次调用）
     let called;
     // 后续的条件要严格判断 保证代码能和别的库一起使用
     if ((typeof x === 'object' && x !== null) || typeof x === 'function') {
         try {
-            // 为了判断 resolve 过的就不用再 reject 了（比如 reject 和 resolve 同时调用的时候）  Promise/A+ 2.3.3.1
+            // 为了判断 resolve 过的就不用再 reject 了（比如 reject 和 resolve 同时调用的时候）
             let then = x.then;
             if (typeof then === 'function') {
-                 // 不要写成 x.then，直接 then.call 就可以了 因为 x.then 会再次取值，Object.defineProperty  Promise/A+ 2.3.3.3
-                 then.call(x, y => {
+                // 不要写成 x.then，直接 then.call 就可以了 因为 x.then 会再次取值，Object.defineProperty
+                then.call(x, y => {
                     // 根据 promise 的状态决定是成功还是失败
                     if (called) return;
                     called = true;
-                    // 递归解析的过程（因为可能 promise 中还有 promise） Promise/A+ 2.3.3.3.1
+                    // 递归解析的过程（因为可能 promise 中还有 promise）
                     resolvePromise(promise2, y, resolve, reject);
-                 }, r => {
-                    // 只要失败就失败 Promise/A+ 2.3.3.3.2
+                }, r => {
+                    // 只要失败就失败
                     if (called) return;
                     called = true;
                     reject(r);
-                 })
+                })
             } else {
-                // 如果 x.then 是个普通值就直接返回 resolve 作为结果  Promise/A+ 2.3.3.4
+                // 如果 x.then 是个普通值就直接返回 resolve 作为结果
                 resolve(x);
             }
         } catch (e) {
@@ -129,14 +137,14 @@ const resolvePromise = (promise2, x, resolve, reject) => {
             reject(e)
         }
     } else {
-        // 如果 x 是个普通值就直接返回 resolve 作为结果  Promise/A+ 2.3.4
+        // 如果 x 是个普通值就直接返回 resolve 作为结果
         resolve(x)
     }
 }
 
 Promise.resolve = function (value) {
     // 如果是 Promise，则直接输出它
-    if(value instanceof Promise){
+    if (value instanceof Promise) {
         return value
     }
     return new Promise(resolve => resolve(value))
@@ -156,7 +164,7 @@ Promise.all = function (promise) {
                 if (++count === promise.length) {
                     resolve(result)
                 }
-            },function (error) {
+            }, function (error) {
                 reject(error)
             })
         }
@@ -202,5 +210,4 @@ Promise.race = function (promise) {
 //         })
 //     })
 // }
-
 
