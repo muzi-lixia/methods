@@ -542,3 +542,25 @@ isValidJSON('{"name":"tntweb",age:"20"}'); // false
 isValidJSON(null); // true
 ```
 
+### 33.检查对象是否为空
+
+```javascript
+const isEmpty = obj => Reflect.ownKeys(obj).length === 0 && obj.constructor === Object
+// 使用 Reflect.ownKeys() 和 Object.keys() 区别：
+// 样例代码
+let obj = {
+    a: "1",
+    b: "哈哈"
+}
+Object.defineProperty(obj, "method", {
+    value: function () {
+        console.log("1")
+    },
+    enumerabel: false
+});
+console.log(Object.keys(obj)); // ["a", "b"]
+console.log(Reflect.ownKeys(obj)); // ["a", "b", "method"]
+// 从结果看：Object.keys()返回属性key，但不包括不可枚举属性
+// Reflect.ownKeys()返回所有属性key
+```
+
