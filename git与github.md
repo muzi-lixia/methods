@@ -641,3 +641,12 @@ git branch
 3. 如果pull的时候提示 *no tracking* 错误，说明本地分支与远程没有进行关系，运行后面给出的提示命令就可以了 `git branch --set-upstream-to=origin/分支名 分支名` 。
 4. 合并中如果遇到冲突，需要手动解决冲突，再本地提交，再使用 **流程1** 的命令 合并。
 
+# 删除线上提交记录
+
+版本回退
+
+1、git reset --hard HEAD^
+
+强制覆盖所有
+
+2、git push origin --force
