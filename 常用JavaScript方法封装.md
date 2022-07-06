@@ -542,25 +542,98 @@ isValidJSON('{"name":"tntweb",age:"20"}'); // false
 isValidJSON(null); // true
 ```
 
-### 33.检查对象是否为空
+### 33.实现trim()
 
-```javascript
-const isEmpty = obj => Reflect.ownKeys(obj).length === 0 && obj.constructor === Object
-// 使用 Reflect.ownKeys() 和 Object.keys() 区别：
-// 样例代码
-let obj = {
-    a: "1",
-    b: "哈哈"
+`trim()` 方法用于删除字符串的头尾空白符，用正则可以模拟实现 `trim`：
+
+`trim()` 方法不会改变原始字符串，同样，自定义实现的 `trim1` 也不会改变原始字符串；
+
+```js
+const trim1 = (str) => {
+  return str.replace(/^\s*|\s*$/g, '') // 或者 str.replace(/^\s*(.*?)\s*$/g, '$1')
 }
-Object.defineProperty(obj, "method", {
-    value: function () {
-        console.log("1")
-    },
-    enumerabel: false
-});
-console.log(Object.keys(obj)); // ["a", "b"]
-console.log(Reflect.ownKeys(obj)); // ["a", "b", "method"]
-// 从结果看：Object.keys()返回属性key，但不包括不可枚举属性
-// Reflect.ownKeys()返回所有属性key
+const string = '   hello medium   '
+const noSpaceString = 'hello medium'
+const trimString = trim1(string)
+console.log(string)
+console.log(trimString, trimString === noSpaceString) // hello medium true
+console.log(string)
+```
+
+### 34.校验 24 小时制
+
+处理时间，经常要用到正则，比如常见的：校验时间格式是否是合法的 24 小时制：
+
+```js
+const check24TimeRegexp = /^(?:(?:0?|1)\d|2[0-3]):(?:0?|[1-5])\d$/
+console.log(check24TimeRegexp.test('01:14')) // true
+console.log(check24TimeRegexp.test('23:59')) // true
+console.log(check24TimeRegexp.test('23:60')) // false
+console.log(check24TimeRegexp.test('1:14')) // true
+console.log(check24TimeRegexp.test('1:1')) // true
+```
+
+### 35.校验日期格式
+
+常见的日期格式有：`yyyy-mm-dd`，`yyyy.mm.dd`，`yyyy/mm/dd` 这 3 种，如果有符号乱用的情况，比如`2021.08/22`，这样就不是合法的日期格式，我们可以通过正则来校验判断：
+
+```js
+const checkDateRegexp = /^\d{4}([-\.\/])(?:0[1-9]|1[0-2])\1(?:0[1-9]|[12]\d|3[01])$/
+
+console.log(checkDateRegexp.test('2021-08-22')) // true
+console.log(checkDateRegexp.test('2021/08/22')) // true
+console.log(checkDateRegexp.test('2021.08.22')) // true
+console.log(checkDateRegexp.test('2021.08/22')) // false
+console.log(checkDateRegexp.test('2021/08-22')) // false
+```
+
+### 36.匹配颜色值
+
+在字符串内匹配出 16 进制的颜色值：
+
+```js
+const matchColorRegex = /#(?:[\da-fA-F]{6}|[\da-fA-F]{3})/g
+const colorString = '#12f3a1 #ffBabd #FFF #123 #586'
+
+console.log(colorString.match(matchColorRegex))
+// [ '#12f3a1', '#ffBabd', '#FFF', '#123', '#586' ]
+```
+
+### 37.检验版本号
+
+版本号必须采用 `x.y.z` 格式，其中 `XYZ` 至少为一位，我们可以用正则来校验：
+
+```js
+// x.y.z
+const versionRegexp = /^(?:\d+\.){2}\d+$/
+
+console.log(versionRegexp.test('1.1.1'))
+console.log(versionRegexp.test('1.000.1'))
+console.log(versionRegexp.test('1.000.1.1'))
+```
+
+### 38.获取网页img地址
+
+```js
+const matchImgs = (sHtml) => {
+  const imgUrlRegex = /<img[^>]+src="((?:https?:)?\/\/[^"]+)"[^>]*?>/gi
+  let matchImgUrls = []
+  
+  sHtml.replace(imgUrlRegex, (match, $1) => {
+    $1 && matchImgUrls.push($1)
+  })
+  return matchImgUrls
+}
+
+console.log(matchImgs(document.body.innerHTML))
+```
+
+### 39.格式化电话号码
+
+```js
+let mobil = "15600099089";
+let reg = /(?=(\d{4})+$)/g;
+
+console.log(mobil.replace(reg, "-"))
 ```
 
